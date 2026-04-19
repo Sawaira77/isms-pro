@@ -1,5 +1,5 @@
 # AI-Enhanced ISO 27001 ISMS Automation Platform
-# AI-Enhanced ISO 27001 ISMS Automation Platform
+
 
 A full-stack web platform built on Kali Linux that automates ISO 27001 information security compliance controls — replacing manual spreadsheets with an intelligent, role-based security governance system.
 
