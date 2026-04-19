@@ -1,0 +1,97 @@
+cat > ~/isms-pro/templates/graphs.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Analytics Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #f1f5f9; display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; min-width: 220px; background: #1e293b; padding: 24px 0; border-right: 1px solid #334155; position: fixed; top: 0; left: 0; height: 100vh; z-index: 10; }
+    .sidebar .logo { color: #38bdf8; font-size: 15px; font-weight: bold; padding: 0 20px 20px; border-bottom: 1px solid #334155; margin-bottom: 12px; }
+    .sidebar .logo span { display: block; color: #64748b; font-size: 11px; font-weight: normal; margin-top: 3px; }
+    .sidebar a { display: block; padding: 10px 20px; color: #94a3b8; text-decoration: none; font-size: 13px; border-left: 3px solid transparent; }
+    .sidebar a:hover, .sidebar a.active { color: #38bdf8; background: #0f172a; border-left-color: #38bdf8; }
+    .sidebar .role-badge { margin: 16px; padding: 5px 10px; background: #0f172a; border-radius: 6px; font-size: 11px; color: #38bdf8; text-align: center; }
+    .main { margin-left: 220px; padding: 28px 32px; flex: 1; width: calc(100% - 220px); }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .topbar h1 { font-size: 20px; }
+    .topbar a.logout { color: #f87171; text-decoration: none; font-size: 13px; margin-left: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat { background: #1e293b; border-radius: 10px; padding: 18px 20px; border: 1px solid #334155; }
+    .stat .label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .stat .value { font-size: 28px; font-weight: bold; }
+    .stat.blue .value { color: #38bdf8; }
+    .stat.red .value  { color: #f87171; }
+    .stat.green .value { color: #4ade80; }
+    .stat.amber .value { color: #fbbf24; }
+    .charts-top { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .chart-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+    .chart-card h2 { font-size: 13px; color: #94a3b8; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chart-card img { width: 100%; border-radius: 8px; }
+    .chart-full { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+    .chart-full h2 { font-size: 13px; color: #94a3b8; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chart-full img { width: 100%; border-radius: 8px; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">ISMS Platform <span>ISO 27001 Automation</span></div>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/risk">Risk Management</a>
+  <a href="/training">Training Tracker</a>
+  <a href="/policies">Policy Manager</a>
+  <a href="/scan">Security Scan</a>
+  <a href="/ai">AI Assessment</a>
+  <a href="/graphs" class="active">Analytics</a>
+  {% if current_user.role in ['admin', 'auditor'] %}<a href="/auditlog">Audit Log</a>{% endif %}
+  {% if current_user.role == 'admin' %}<a href="/admin">Admin Panel</a>{% endif %}
+  <div class="role-badge">{{ current_user.role | upper }}</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>Analytics Dashboard <span style="font-size:12px;color:#64748b;margin-left:10px;">Live charts from your data</span></h1>
+    <div style="font-size:13px;color:#64748b;">
+      {{ current_user.username }}
+      <a href="/logout" class="logout">Logout</a>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat blue">
+      <div class="label">Total Risks</div>
+      <div class="value">{{ total_risks }}</div>
+    </div>
+    <div class="stat red">
+      <div class="label">Critical</div>
+      <div class="value">{{ critical }}</div>
+    </div>
+    <div class="stat green">
+      <div class="label">Training Done</div>
+      <div class="value">{{ completed }}</div>
+    </div>
+    <div class="stat amber">
+      <div class="label">Training Pending</div>
+      <div class="value">{{ pending }}</div>
+    </div>
+  </div>
+
+  <div class="charts-top">
+    <div class="chart-card">
+      <h2>Risks by level</h2>
+      <img src="data:image/png;base64,{{ chart1 }}" alt="Risk levels chart">
+    </div>
+    <div class="chart-card">
+      <h2>Training completion</h2>
+      <img src="data:image/png;base64,{{ chart2 }}" alt="Training pie chart">
+    </div>
+  </div>
+
+  <div class="chart-full">
+    <h2>Risk score trend</h2>
+    <img src="data:image/png;base64,{{ chart3 }}" alt="Risk score trend">
+  </div>
+</div>
+</body>
+</html>
+HTMLEOF

@@ -1,0 +1,147 @@
+cat > templates/risk.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Risk Management</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #f1f5f9; display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; min-width: 220px; background: #1e293b; padding: 24px 0; border-right: 1px solid #334155; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 10; }
+    .sidebar .logo { color: #38bdf8; font-size: 15px; font-weight: bold; padding: 0 20px 20px; border-bottom: 1px solid #334155; margin-bottom: 12px; }
+    .sidebar .logo span { display: block; color: #64748b; font-size: 11px; font-weight: normal; margin-top: 3px; }
+    .sidebar a { display: block; padding: 10px 20px; color: #94a3b8; text-decoration: none; font-size: 13px; border-left: 3px solid transparent; }
+    .sidebar a:hover, .sidebar a.active { color: #38bdf8; background: #0f172a; border-left-color: #38bdf8; }
+    .sidebar .role-badge { margin: 16px; padding: 5px 10px; background: #0f172a; border-radius: 6px; font-size: 11px; color: #38bdf8; text-align: center; }
+    .main { margin-left: 220px; padding: 28px 32px; flex: 1; width: calc(100% - 220px); }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .topbar h1 { font-size: 20px; color: #f1f5f9; }
+    .topbar .sub { font-size: 12px; color: #64748b; margin-left: 10px; }
+    .topbar a.logout { color: #f87171; text-decoration: none; font-size: 13px; margin-left: 16px; }
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+    .card { background: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155; }
+    .card h2 { font-size: 14px; color: #94a3b8; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; margin-top: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input[type=text], textarea, select {
+      width: 100%; padding: 9px 12px; border-radius: 8px;
+      border: 1px solid #475569; background: #0f172a;
+      color: #f1f5f9; font-size: 13px; outline: none;
+    }
+    input[type=text]:focus, textarea:focus, select:focus { border-color: #38bdf8; }
+    textarea { resize: vertical; }
+    select option { background: #1e293b; }
+    .btn { margin-top: 18px; width: 100%; padding: 11px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: bold; }
+    .btn:hover { background: #1d4ed8; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: #64748b; padding: 8px 12px; border-bottom: 1px solid #334155; font-weight: normal; font-size: 12px; text-transform: uppercase; }
+    td { padding: 11px 12px; border-bottom: 1px solid #1a2744; color: #cbd5e1; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1a2744; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+    .CRITICAL { background: #7f1d1d; color: #fca5a5; }
+    .HIGH     { background: #78350f; color: #fcd34d; }
+    .MEDIUM   { background: #1e3a5f; color: #93c5fd; }
+    .LOW      { background: #14532d; color: #86efac; }
+    .flash { padding: 10px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+    .flash.success { background: #14532d; color: #86efac; }
+    .flash.danger  { background: #7f1d1d; color: #fca5a5; }
+    .empty { color: #64748b; font-size: 13px; padding: 30px 0; text-align: center; }
+    .risk-name { font-weight: bold; color: #f1f5f9; }
+    .risk-desc { color: #64748b; font-size: 11px; margin-top: 3px; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">ISMS Platform <span>ISO 27001 Automation</span></div>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/risk" class="active">Risk Management</a>
+  <a href="/training">Training Tracker</a>
+  <a href="/policies">Policy Manager</a>
+  <a href="/scan">Security Scan</a>
+  <a href="/ai">AI Assessment</a>
+  {% if current_user.role in ['admin', 'auditor'] %}<a href="/auditlog">Audit Log</a>{% endif %}
+  {% if current_user.role == 'admin' %}<a href="/admin">Admin Panel</a>{% endif %}
+  <div class="role-badge">{{ current_user.role | upper }}</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>Risk Management <span class="sub">Clause 6 — ISO 27001</span></h1>
+    <div style="font-size:13px;color:#64748b;">
+      {{ current_user.username }}
+      <a href="/logout" class="logout">Logout</a>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="grid">
+    <div class="card">
+      <h2>Add New Risk</h2>
+      <form method="POST">
+        <label>Risk Name</label>
+        <input type="text" name="name" placeholder="e.g. Unauthorised data access" required>
+
+        <label>Description</label>
+        <textarea name="description" rows="3" placeholder="Brief description of the risk"></textarea>
+
+        <label>Risk Owner</label>
+        <input type="text" name="owner" placeholder="e.g. IT Manager">
+
+        <label>Likelihood (1–5)</label>
+        <select name="likelihood">
+          <option value="1">1 — Rare</option>
+          <option value="2">2 — Unlikely</option>
+          <option value="3" selected>3 — Possible</option>
+          <option value="4">4 — Likely</option>
+          <option value="5">5 — Almost certain</option>
+        </select>
+
+        <label>Impact (1–5)</label>
+        <select name="impact">
+          <option value="1">1 — Negligible</option>
+          <option value="2">2 — Minor</option>
+          <option value="3" selected>3 — Moderate</option>
+          <option value="4">4 — Major</option>
+          <option value="5">5 — Catastrophic</option>
+        </select>
+
+        <button type="submit" class="btn">Add Risk to Register</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Risk Register — {{ risks | length }} risks</h2>
+      {% if risks %}
+      <table>
+        <tr>
+          <th>Risk</th><th>Owner</th><th>L</th><th>I</th><th>Score</th><th>Level</th>
+        </tr>
+        {% for r in risks %}
+        <tr>
+          <td>
+            <div class="risk-name">{{ r.name }}</div>
+            {% if r.description %}
+            <div class="risk-desc">{{ r.description[:70] }}</div>
+            {% endif %}
+          </td>
+          <td>{{ r.owner or '—' }}</td>
+          <td>{{ r.likelihood }}</td>
+          <td>{{ r.impact }}</td>
+          <td><strong style="font-size:15px;">{{ r.score }}</strong></td>
+          <td><span class="badge {{ r.level }}">{{ r.level }}</span></td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p class="empty">No risks added yet.<br>Use the form on the left to add your first risk.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+</body>
+</html>
+HTMLEOF

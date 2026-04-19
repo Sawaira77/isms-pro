@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audit Log</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #f1f5f9; }
+    .sidebar { position: fixed; left: 0; top: 0; width: 220px; height: 100vh; background: #1e293b; padding: 24px 0; border-right: 1px solid #334155; }
+    .sidebar .logo { color: #38bdf8; font-size: 16px; font-weight: bold; padding: 0 20px 24px; border-bottom: 1px solid #334155; margin-bottom: 16px; }
+    .sidebar .logo span { display: block; color: #64748b; font-size: 11px; font-weight: normal; margin-top: 4px; }
+    .sidebar a { display: block; padding: 10px 20px; color: #94a3b8; text-decoration: none; font-size: 14px; border-left: 3px solid transparent; }
+    .sidebar a:hover, .sidebar a.active { color: #38bdf8; background: #0f172a; border-left-color: #38bdf8; }
+    .sidebar .role-badge { margin: 20px; padding: 6px 10px; background: #0f172a; border-radius: 6px; font-size: 11px; color: #38bdf8; text-align: center; }
+    .main { margin-left: 220px; padding: 32px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .topbar h1 { font-size: 22px; }
+    .topbar a.logout { color: #f87171; text-decoration: none; font-size: 13px; margin-left: 16px; }
+    .card { background: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155; }
+    .card h2 { font-size: 15px; color: #94a3b8; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: #64748b; padding: 8px 12px; border-bottom: 1px solid #334155; font-weight: normal; }
+    td { padding: 10px 12px; border-bottom: 1px solid #0f172a; color: #cbd5e1; }
+    .empty { color: #64748b; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">ISMS Platform <span>ISO 27001 Automation</span></div>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/risk">Risk Management</a>
+  <a href="/training">Training Tracker</a>
+  <a href="/policies">Policy Manager</a>
+  <a href="/scan">Security Scan</a>
+  <a href="/ai">AI Assessment</a>
+  <a href="/auditlog" class="active">Audit Log</a>
+  {% if current_user.role == 'admin' %}<a href="/admin">Admin Panel</a>{% endif %}
+  <div class="role-badge">{{ current_user.role | upper }}</div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <h1>Audit Log <span style="font-size:13px;color:#64748b;margin-left:12px;">Clause 9.1 — Monitoring</span></h1>
+    <div style="font-size:13px;color:#64748b;">{{ current_user.username }} <a href="/logout" class="logout">Logout</a></div>
+  </div>
+  <div class="card">
+    <h2>All System Activity ({{ logs | length }} entries)</h2>
+    {% if logs %}
+    <table>
+      <tr><th>User</th><th>Action</th><th>IP Address</th><th>Timestamp</th></tr>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.user }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.ip }}</td>
+        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">No logs yet.</p>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

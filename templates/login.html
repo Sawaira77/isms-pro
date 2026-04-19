@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ISMS Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f172a;
+           display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .card { background: #1e293b; padding: 40px; border-radius: 12px;
+            width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    h2 { color: #38bdf8; margin-bottom: 8px; font-size: 22px; }
+    p.sub { color: #94a3b8; font-size: 13px; margin-bottom: 28px; }
+    label { display: block; color: #cbd5e1; font-size: 13px; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 14px; border-radius: 8px;
+            border: 1px solid #334155; background: #0f172a;
+            color: #f1f5f9; font-size: 14px; margin-bottom: 18px; }
+    button { width: 100%; padding: 12px; background: #2563eb;
+             color: white; border: none; border-radius: 8px;
+             font-size: 15px; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    .flash { padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;
+             font-size: 13px; background: #7f1d1d; color: #fca5a5; }
+    .badge { display: inline-block; background: #1e3a5f; color: #38bdf8;
+             font-size: 11px; padding: 3px 8px; border-radius: 4px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>ISMS Platform</h2>
+  <p class="sub">ISO 27001 Automation System</p>
+  <span class="badge">Secure Login</span>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  <form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="Enter username" required>
+    <label>Password</label>
+    <input type="password" name="password" placeholder="Enter password" required>
+    <button type="submit">Login</button>
+  </form>
+</div>
+</body>
+</html>
